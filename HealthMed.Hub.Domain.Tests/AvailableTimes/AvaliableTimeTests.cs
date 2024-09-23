@@ -4,7 +4,7 @@ using FluentAssertions;
 using HealthMed.Hub.Domain.AvailableTimes;
 using HealthMed.Hub.Domain.Base;
 
-namespace HealthMed.Hub.Domain.Tests;
+namespace HealthMed.Hub.Domain.Tests.AvailableTimes;
 
 public class AvaliableTimeTests
 {

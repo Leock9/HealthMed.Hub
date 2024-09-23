@@ -4,7 +4,7 @@ using FluentAssertions;
 using HealthMed.Hub.Domain.Appointments;
 using HealthMed.Hub.Domain.Base;
 
-namespace HealthMed.Hub.Domain.Tests;
+namespace HealthMed.Hub.Domain.Tests.Appointments;
 
 public class AppointmentTests
 {
