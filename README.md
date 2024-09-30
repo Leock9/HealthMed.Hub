@@ -108,4 +108,4 @@ Supondo um aumento de 10% a cada mês nos custos devido ao aumento no tráfego e
 ## Repositório GitHub
 [HealthMedHub no GitHub](https://github.com/Leock9/HealthMed.Hub)
 
-Video: 
+Video: https://youtu.be/Pz1gmvFQhXc
