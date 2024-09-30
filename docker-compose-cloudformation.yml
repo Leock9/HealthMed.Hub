@@ -1,0 +1,17 @@
+services:
+  localstack:
+    container_name: "localstack"
+    image: localstack/localstack-pro 
+    ports:
+      - "127.0.0.1:4566:4566" # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559" # external services port range
+    environment:
+      - LOCALSTACK_AUTH_TOKEN="ls-RiFIdoqO-PUpu-FOTO-NaXi-4708XuPA470c"
+      - AWS_DEFAULT_REGION=us-east-1
+      - SERVICES=sqs, ecs, cloudformation, iam, ec2, elbv2, events, rds
+      - EXTRA_CORS_ALLOWED_ORIGINS=https://app.localstack.cloud.
+    volumes:
+      - "./localstack-volume:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./localstack-init:/etc/localstack/init/ready.d"
+      - "./cloudformation:/cloudformation"

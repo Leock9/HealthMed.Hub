@@ -1,0 +1,282 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  # VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16  # Define o bloco CIDR para a VPC
+      EnableDnsSupport: true  # Habilita suporte a DNS na VPC
+      EnableDnsHostnames: true  # Habilita nomes de host DNS na VPC
+      Tags:
+        - Key: Name
+          Value: HealthMedVPC  # Nome da VPC
+
+  # Subnets
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      CidrBlock: 10.0.1.0/24  # Define o bloco CIDR para a sub-rede pública 1
+      MapPublicIpOnLaunch: true  # Habilita IP público para instâncias lançadas nesta sub-rede
+      AvailabilityZone: !Select [ 0, !GetAZs ]  # Define a zona de disponibilidade para a sub-rede
+      Tags:
+        - Key: Name
+          Value: PublicSubnet1  # Nome da sub-rede pública 1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      CidrBlock: 10.0.2.0/24  # Define o bloco CIDR para a sub-rede pública 2
+      MapPublicIpOnLaunch: true  # Habilita IP público para instâncias lançadas nesta sub-rede
+      AvailabilityZone: !Select [ 1, !GetAZs ] # Define a zona de disponibilidade para a sub-rede
+      Tags:
+        - Key: Name
+          Value: PublicSubnet2  # Nome da sub-rede pública 2
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      CidrBlock: 10.0.3.0/24  # Define o bloco CIDR para a sub-rede privada 1
+      AvailabilityZone: !Select [ 0, !GetAZs ]  # Define a zona de disponibilidade para a sub-rede
+      Tags:
+        - Key: Name
+          Value: PrivateSubnet1  # Nome da sub-rede privada 1
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      CidrBlock: 10.0.4.0/24  # Define o bloco CIDR para a sub-rede privada 2
+      AvailabilityZone: !Select [1, !GetAZs ]  # Define a zona de disponibilidade para a sub-rede
+      Tags:
+        - Key: Name
+          Value: PrivateSubnet2  # Nome da sub-rede privada 2
+
+  # Internet Gateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: HealthMedInternetGateway  # Nome do Internet Gateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      InternetGatewayId: !Ref InternetGateway  # Referencia o Internet Gateway criado anteriormente
+
+  # Route Tables
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      Tags:
+        - Key: Name
+          Value: PublicRouteTable  # Nome da tabela de roteamento pública
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      Tags:
+        - Key: Name
+          Value: PrivateRouteTable  # Nome da tabela de roteamento privada
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PublicRouteTable  # Referencia a tabela de roteamento pública
+      DestinationCidrBlock: 0.0.0.0/0  # Define o bloco CIDR de destino
+      GatewayId: !Ref InternetGateway  # Referencia o Internet Gateway
+
+  # Subnet Route Table Associations
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1  # Referencia a sub-rede pública 1
+      RouteTableId: !Ref PublicRouteTable  # Associa a sub-rede pública 1 à tabela de roteamento pública
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2  # Referencia a sub-rede pública 2
+      RouteTableId: !Ref PublicRouteTable  # Associa a sub-rede pública 2 à tabela de roteamento pública
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet1  # Referencia a sub-rede privada 1
+      RouteTableId: !Ref PrivateRouteTable  # Associa a sub-rede privada 1 à tabela de roteamento privada
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet2  # Referencia a sub-rede privada 2
+      RouteTableId: !Ref PrivateRouteTable  # Associa a sub-rede privada 2 à tabela de roteamento privada
+
+  # Security Groups
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP and HTTPS traffic  # Descrição do grupo de segurança
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0  # Permite tráfego HTTP de qualquer IP
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0  # Permite tráfego HTTPS de qualquer IP
+      Tags:
+        - Key: Name
+          Value: ELBSecurityGroup  # Nome do grupo de segurança do ELB
+
+  ECSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow traffic from ELB  # Descrição do grupo de segurança
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref ELBSecurityGroup  # Permite tráfego HTTP do grupo de segurança do ELB
+      Tags:
+        - Key: Name
+          Value: ECSSecurityGroup  # Nome do grupo de segurança do ECS
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow traffic from ECS  # Descrição do grupo de segurança
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref ECSSecurityGroup  # Permite tráfego PostgreSQL do grupo de segurança do ECS
+      Tags:
+        - Key: Name
+          Value: RDSSecurityGroup  # Nome do grupo de segurança do RDS
+
+  # Elastic Load Balancer
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: HealthMedELB  # Nome do ELB
+      Subnets:
+        - !Ref PublicSubnet1  # Sub-rede pública 1
+        - !Ref PublicSubnet2  # Sub-rede pública 2
+      SecurityGroups:
+        - !Ref ELBSecurityGroup  # Grupo de segurança do ELB
+      Scheme: internet-facing  # Define o ELB como voltado para a internet
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '60'  # Define o tempo limite ocioso para o ELB
+
+  # Target Group
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: HealthMedTargetGroup  # Nome do grupo de destino
+      Port: 80  # Porta do grupo de destino
+      Protocol: HTTP  # Protocolo do grupo de destino
+      VpcId: !Ref VPC  # Referencia a VPC criada anteriormente
+      HealthCheckProtocol: HTTP  # Protocolo de verificação de integridade
+      HealthCheckPort: '80'  # Porta de verificação de integridade
+      HealthCheckPath: /  # Caminho de verificação de integridade
+      Matcher:
+        HttpCode: 200  # Código de resposta esperado para a verificação de integridade
+      TargetType: ip  # Tipo de destino (IP)
+
+  # Listener
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup  # Encaminha o tráfego para o grupo de destino
+      LoadBalancerArn: !Ref LoadBalancer  # Referencia o ELB criado anteriormente
+      Port: 80  # Porta do listener
+      Protocol: HTTP  # Protocolo do listener
+
+  # ECS Cluster
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: HealthMedCluster  # Nome do cluster ECS
+
+  # ECS Task Definition
+  ECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: HealthMedTaskDefinition  # Nome da família da definição de tarefa
+      NetworkMode: awsvpc  # Modo de rede
+      RequiresCompatibilities:
+        - FARGATE  # Tipo de compatibilidade (Fargate)
+      Cpu: '256'  # CPU alocada para a tarefa
+      Memory: '512'  # Memória alocada para a tarefa
+      ContainerDefinitions:
+        - Name: healthmed-api  # Nome do container
+          Image: lkhouri/healthmedhubapi:v1  # Imagem Docker do container
+          PortMappings:
+            - ContainerPort: 8080  # Porta do container (ajustada para 8080)
+          Essential: true  # Define o container como essencial
+
+  # ECS Service
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster  # Referencia o cluster ECS criado anteriormente
+      DesiredCount: 1  # Número desejado de instâncias da tarefa
+      LaunchType: FARGATE  # Tipo de lançamento (Fargate)
+      TaskDefinition: !Ref ECSTaskDefinition  # Referencia a definição de tarefa criada anteriormente
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED  # Habilita IP público para as tarefas
+          Subnets:
+            - !Ref PrivateSubnet1  # Sub-rede privada 1
+            - !Ref PrivateSubnet2  # Sub-rede privada 2
+          SecurityGroups:
+            - !Ref ECSSecurityGroup  # Grupo de segurança do ECS
+      LoadBalancers:
+        - ContainerName: healthmed-api  # Nome do container
+          ContainerPort: 8080  # Porta do container (ajustada para 8080)
+          TargetGroupArn: !Ref TargetGroup  # Referencia o grupo de destino
+
+  # RDS Subnet Group
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "Subnet group for RDS instance"
+      SubnetIds:
+        - !Ref PrivateSubnet1  # Sub-rede privada 1
+        - !Ref PrivateSubnet2  # Sub-rede privada 2
+      DBSubnetGroupName: healthmed-db-subnet-group  # Nome do grupo de sub-redes do RDS
+
+  # RDS Instance
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: RDS-POST  # Identificador da instância RDS
+      AllocatedStorage: 20  # Armazenamento alocado (em GB)
+      DBInstanceClass: db.t3.micro  # Classe da instância RDS
+      Engine: postgres  # Motor do banco de dados
+      EngineVersion: '13.3'  # Versão do motor do banco de dados
+      MasterUsername: passUser  # Nome de usuário mestre
+      MasterUserPassword: pass45455627  # Senha do usuário mestre
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup  # Grupo de segurança do RDS
+      DBSubnetGroupName: !Ref DBSubnetGroup  # Grupo de sub-redes do RDS
+      MultiAZ: false  # Desabilita a implantação Multi-AZ
+      DBName: dbHealth  # Nome do banco de dados
+
+Outputs:
+  LoadBalancerDNSName:
+    Description: "DNS Name of the Load Balancer"
+    Value: !GetAtt LoadBalancer.DNSName  # Obtém o nome DNS do ELB
