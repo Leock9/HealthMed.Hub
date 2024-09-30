@@ -26,8 +26,12 @@ jobs:
       - name: Build
         run: dotnet build HealthMed.Hub.sln --no-restore --configuration Release
 
-      - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+      - name: Run API tests
+        run: dotnet test HealthMed.Hub.Api.Tests/HealthMed.Hub.Api.Tests.csproj --no-build --verbosity normal
+      
+      - name: Run Domain tests
+        run: dotnet test HealthMed.Hub.Domain.Tests/HealthMed.Hub.Domain.Tests.csproj --no-build --verbosity normal
+      
 
   build-and-push-docker-image:
     runs-on: ubuntu-latest
