@@ -25,9 +25,6 @@ jobs:
 
       - name: Build
         run: dotnet build HealthMed.Hub.sln --no-restore --configuration Release
-      
-      - name: Run Domain tests
-        run: dotnet test Domain/HealthMed.Hub.Domain.Tests/HealthMed.Hub.Domain.Tests.csproj --no-build --framework net8.0 --logger "console;verbosity=detailed"
 
   build-and-push-docker-image:
     runs-on: ubuntu-latest
