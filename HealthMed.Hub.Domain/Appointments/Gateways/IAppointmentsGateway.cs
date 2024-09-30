@@ -7,4 +7,6 @@ public interface IAppointmentsGateway
     Task<Appointment> GetByIdAsync(Guid id);
     Task<IEnumerable<Appointment>> GetAsync();
     Task DeleteAsync(Guid id);
+    Task<IEnumerable<Appointment>> GetByDoctorIdAsync(Guid doctorId);
+    Task<IEnumerable<Appointment>> GetByPatientAsync(Guid patientId);
 }

@@ -7,5 +7,5 @@ public interface IAvailableTimeGateway
     Task<AvaliableTime> GetByIdAsync(Guid id);
     Task<IEnumerable<AvaliableTime>> GetAsync();
     Task DeleteAsync(Guid id);
-
+    Task<IEnumerable<AvaliableTime>> GetByDoctorIdAsync(Guid doctorId);
 }

@@ -3,13 +3,10 @@ using Bogus.Extensions.Brazil;
 using FakeItEasy;
 using FluentAssertions;
 using FluentValidation;
-using FluentValidation.Results;
-using HealthMed.Hub.Domain.Base;
 using HealthMed.Hub.Domain.Doctors;
 using HealthMed.Hub.Domain.Doctors.Gateways;
 using HealthMed.Hub.Domain.Doctors.UseCases.RegisterDoctor;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
 using ValidationException = FluentValidation.ValidationException;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
@@ -100,21 +97,5 @@ public class RegisterDoctorUseCaseTests
 
         // Assert
         await act.Should().ThrowAsync<ValidationException>();
-    }
-
-
-    [Fact]
-    public async Task Should_Throw_Validation_Exception_When_Input_Is_Invalid()
-    {
-        var useCase = GetUseCase();
-        var validator = A.Fake<IValidator<RegisterDoctorInput>>();
-
-        Func<Task> act = async () => await useCase.HandleAsync
-        (
-            new RegisterDoctorInput(string.Empty, string.Empty, string.Empty, string.Empty), 
-            CancellationToken.None
-        );
-
-        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
     }
 }

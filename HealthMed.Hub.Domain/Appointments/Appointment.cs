@@ -45,4 +45,9 @@ public record Appointment(Guid DoctorId, Guid PatientId, Guid AvailableTimeId, D
         }
         return date;
     }
+
+    public bool IsSameAppointment(Appointment appointment)
+    {
+        return DoctorId == appointment.DoctorId && AvailableTimeId == appointment.AvailableTimeId;
+    }
 }

@@ -17,4 +17,15 @@ public record AvaliableTime(TimeOnly StartTime, TimeOnly EndTime, Guid DoctorId,
                                           DoctorId : throw new DomainException("DoctorId cannot be an empty GUID");
 
     public DayOfWeek DayOfWeek { get; init; } = DayOfWeek;
+
+    public bool IsOccupied { get; init; } = false;
+
+    public bool IsSameAvaliableTime(AvaliableTime avaliableTime)
+    {
+        return avaliableTime != null &&
+               avaliableTime.StartTime == StartTime &&
+               avaliableTime.EndTime == EndTime &&
+               avaliableTime.DoctorId == DoctorId &&
+               avaliableTime.DayOfWeek == DayOfWeek;
+    }
 }

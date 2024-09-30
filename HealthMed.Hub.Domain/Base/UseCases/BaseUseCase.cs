@@ -7,7 +7,7 @@ namespace HealthMed.Hub.Domain.Base.UseCases;
 public abstract class BaseUseCase<TInput>
 {
     protected readonly IValidator<TInput> _validator;
-    private readonly IList<ValidationFailure> _validationFailures = new List<ValidationFailure>();
+    public readonly IList<ValidationFailure> _validationFailures = new List<ValidationFailure>();
 
     protected BaseUseCase
     (

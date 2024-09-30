@@ -1,0 +1,25 @@
+services:
+  healthmed.hub.api:
+    image: ${DOCKER_REGISTRY-}healthmedhubapi
+    build:
+      context: .
+      dockerfile: HealthMed.Hub.Api/Dockerfile
+    ports:
+      - "8080:8080"
+
+  pgdb:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: dbHealth
+      POSTGRES_USER: passUser
+      POSTGRES_PASSWORD: pass45455627
+    volumes:
+      - /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U passUser -d dbHealth"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped

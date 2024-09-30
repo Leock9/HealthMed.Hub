@@ -4,19 +4,23 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>6dac2844-1cfa-4e8f-948b-aa360db8293e</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.SQS" Version="3.7.400.21" />
     <PackageReference Include="FastEndpoints" Version="5.29.0" />
+    <PackageReference Include="FastEndpoints.Swagger" Version="5.29.0" />
     <PackageReference Include="LocalStack.Client" Version="1.4.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="[Endpoints]\Doctors\" />
-    <Folder Include="[Endpoints]\Appointments\" />
-    <Folder Include="[Endpoints]\Patients\" />
+    <ProjectReference Include="..\HealthMed.Hub.Domain\HealthMed.Hub.Domain.csproj" />
+    <ProjectReference Include="..\HealthMed.Hub.Infrastructure\HealthMed.Hub.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

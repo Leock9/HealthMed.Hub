@@ -37,7 +37,7 @@ public class RegisterDoctorUseCase : BaseUseCase<RegisterDoctorInput>, IRegister
 
             await _doctorGateway.CreateAsync(doctor);
 
-            return new RegisterDoctorOutput(doctor.Id);
+            return new RegisterDoctorOutput(doctor.Id.Value);
         }
         catch (ValidationException vx)
         {
